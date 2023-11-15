@@ -13,7 +13,6 @@ function App() {
             <h1>to do</h1>
             <img src={moon} alt="" />
           </div>
-          <input type="text" />
         </div>
       </div>
     </>

@@ -5,7 +5,7 @@ import moon from "./assets/moon.svg";
 import oval from "./assets/Oval Copy.svg";
 
 function App() {
-  // const data = ["All", "Active", "Completed"];
+  const data: string[] = ["All", "Active", "Completed"];
 
   return (
     <>
@@ -22,15 +22,15 @@ function App() {
               <input placeholder="Currently typing" />
             </InputWrapper>
             <div>
-              <div>
+              <FooterWrapper>
                 <span>5 items left</span>
-                {/* <div>
-                  {data.map((index, item) => {
-                    <span key={index}>{item}</span>;
-                  })}
-                </div> */}
-                <span>Clear Completed</span>
-              </div>
+                <Datacontainer>
+                  {data.map((item, index) => (
+                    <span key={index}>{item}</span>
+                  ))}
+                </Datacontainer>
+                <ClearButton>Clear Completed</ClearButton>
+              </FooterWrapper>
             </div>
           </div>
         </ContentWrapper>
@@ -83,4 +83,30 @@ const InputWrapper = styled.div`
     letter-spacing: -0.25px;
     width: 100%;
   }
+`;
+
+//FooterWrapper
+const FooterWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.194px;
+  color: #9495a5;
+`;
+
+const Datacontainer = styled.div`
+  display: flex;
+  column-gap: 20px;
+  span {
+    cursor: pointer;
+    &:hover {
+      color: #494c6b;
+    }
+  }
+`;
+const ClearButton = styled.span`
+  cursor: pointer;
 `;

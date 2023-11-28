@@ -1,11 +1,18 @@
-import styled from "styled-components";
-
+import styled, { css } from "styled-components";
 import DesktopLight from "./assets/bg-desktop-light.jpg";
+import DesktopDark from "./assets/bg-desktop-dark.jpg";
 import moon from "./assets/moon.svg";
+import sun from "./assets/sun.svg"
 import oval from "./assets/Oval empty.svg";
 import { useState } from "react";
 
 const App: React.FC = () => {
+  const [dark, setDark] = useState(false);
+
+  const changeMoudHandles = () => {
+    setDark(!dark);
+  };
+
   const [input, setInput] = useState("");
   const [items, setItems] = useState<string[]>([]);
 
@@ -24,12 +31,14 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Wrapper>
-        <HeaderImgs src={DesktopLight} alt="header img" />
+      <Wrapper mode={dark}>
+        <HeaderImgs src={dark ? DesktopLight : DesktopDark} alt="header img" />
         <ContentWrapper>
           <TiTleContainer>
             <h1>todo</h1>
-            <img src={moon} alt="" />
+            <button onClick={changeMoudHandles}>
+              <img src={dark? moon : sun} alt="img" />
+            </button>
           </TiTleContainer>
           <div>
             <InputWrapper>
@@ -45,7 +54,7 @@ const App: React.FC = () => {
               <TascWrapper>
                 {items.map((item, index) => (
                   <TascContainer key={index}>
-                    <img src={oval} alt="kuh" />
+                    <img src={oval} alt="img" />
                     <span>{item}</span>
                   </TascContainer>
                 ))}
@@ -71,18 +80,27 @@ const App: React.FC = () => {
 
 export default App;
 
-const Wrapper = styled.div`
-  position: relative;
-`;
+type WrapperProps = {
+  mode: boolean;
+};
+
+const Wrapper = styled.div<WrapperProps>(
+  (props) => css`
+    height: 100vh;
+    position: relative;
+    background: ${props.mode ? "white" : "black"};
+  `
+);
+
 const HeaderImgs = styled.img`
   width: 100%;
-  height: 44vh;
+  height: 290px;
 `;
 const ContentWrapper = styled.div`
   max-width: 540px;
   width: 100%;
   position: absolute;
-  top: 44%;
+  top: 12%;
   left: 50%;
   transform: translateX(-50%);
 `;
@@ -95,6 +113,13 @@ const TiTleContainer = styled.div`
     font-weight: 700;
     letter-spacing: 15px;
     text-transform: uppercase;
+  }
+  button {
+    height: 45px;
+    width: 45px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
   }
 `;
 const InputWrapper = styled.div`

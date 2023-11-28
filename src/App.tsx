@@ -2,8 +2,10 @@ import styled, { css } from "styled-components";
 import DesktopLight from "./assets/bg-desktop-light.jpg";
 import DesktopDark from "./assets/bg-desktop-dark.jpg";
 import moon from "./assets/moon.svg";
-import sun from "./assets/sun.svg"
-import oval from "./assets/Oval empty.svg";
+import sun from "./assets/sun.svg";
+import ovalLight from "./assets/Oval empty.svg";
+import ovalDark from "./assets/Oveal dark empty.svg";
+import X from "./assets/x.svg";
 import { useState } from "react";
 
 const App: React.FC = () => {
@@ -37,12 +39,12 @@ const App: React.FC = () => {
           <TiTleContainer>
             <h1>todo</h1>
             <button onClick={changeMoudHandles}>
-              <img src={dark? moon : sun} alt="img" />
+              <img src={dark ? moon : sun} alt="img" />
             </button>
           </TiTleContainer>
           <div>
-            <InputWrapper>
-              <img src={oval} alt="" />
+            <InputWrapper mode={dark}>
+              <img src={dark ? ovalLight : ovalDark} alt="" />
               <input
                 value={input}
                 onChange={inputChange}
@@ -53,15 +55,20 @@ const App: React.FC = () => {
             <Main>
               <TascWrapper>
                 {items.map((item, index) => (
-                  <TascContainer key={index}>
-                    <img src={oval} alt="img" />
-                    <span>{item}</span>
+                  <TascContainer key={index} mode={dark}>
+                    <div>
+                      <img src={dark ? ovalLight : ovalDark} alt="img" />
+                      <span>{item}</span>
+                    </div>
+                    <div>
+                      <img src={X} />
+                    </div>
                   </TascContainer>
                 ))}
               </TascWrapper>
-              <FooterWrapper>
+              <FooterWrapper mode={dark}>
                 <span>{items.length} items left</span>
-                <Datacontainer>
+                <Datacontainer mode={dark}>
                   {data.map((item, index) => (
                     <span key={index}>{item}</span>
                   ))}
@@ -86,7 +93,7 @@ type WrapperProps = {
 
 const Wrapper = styled.div<WrapperProps>(
   (props) => css`
-    height: 100vh;
+    width: 100%;
     position: relative;
     background: ${props.mode ? "white" : "black"};
   `
@@ -122,26 +129,36 @@ const TiTleContainer = styled.div`
     background: transparent;
   }
 `;
-const InputWrapper = styled.div`
-  border-radius: 5px;
-  background: #fff;
-  box-shadow: 0px 35px 50px -15px rgba(194, 195, 214, 0.5);
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  input {
-    border: none;
-    margin-left: 24px;
-    color: #393a4b;
-    font-size: 18px;
-    letter-spacing: -0.25px;
-    width: 100%;
-  }
-`;
+type InputWrapperProps = {
+  mode: boolean;
+  children?: React.ReactNode;
+};
+
+const InputWrapper: React.FC<InputWrapperProps> = styled.div<InputWrapperProps>(
+  (props) => css`
+    border-radius: 5px;
+    background: ${props.mode ? "#fff" : "#25273D"};
+    box-shadow: 0px 35px 50px -15px rgba(194, 195, 214, 0.5);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+
+    input {
+      border: none;
+      margin-left: 24px;
+      color: ${props.mode ? "#393a4b" : "#fff"};
+      font-size: 22px;
+      letter-spacing: -0.25px;
+      width: 100%;
+      outline: none;
+      background: transparent;
+    }
+  `
+);
 
 const Main = styled.div`
-  border-radius: 5px;
+  border-radius: 15px;
   background: #fff;
   box-shadow: 0px 35px 50px -15px rgba(194, 195, 214, 0.5);
 `;
@@ -151,42 +168,73 @@ const TascWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const TascContainer = styled.div`
-  padding: 20px 24px;
-  border-bottom: 3px solid #e3e4f1;
-  display: flex;
-  align-items: center;
 
-  color: #494c6b;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.25px;
-  img {
-    margin-right: 24px;
-  }
-`;
+type TascContainerProps = {
+  mode: boolean;
+  children?: React.ReactNode;
+};
+
+const TascContainer: React.FC<TascContainerProps> =
+  styled.div<TascContainerProps>(
+    (props) => css`
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: ${props.mode ? "3px solid #e3e4f1" : "3px solid #393A4B"};
+      display: flex;
+      align-items: center;
+      background: ${props.mode ? "#fff" : "#25273D"};
+
+      color: ${props.mode ? "#494c6b" : "#C8CBE7"};
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.25px;
+      img {
+        margin-right: 24px;
+        cursor: pointer;
+      }
+      button {
+      }
+    `
+  );
 //FooterWrapper
-const FooterWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  background: #fff;
-  padding: 16px 24px;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.194px;
-  color: #9495a5;
-`;
 
-const Datacontainer = styled.div`
-  display: flex;
-  column-gap: 20px;
-  span {
-    cursor: pointer;
-    &:hover {
-      color: #494c6b;
-    }
-  }
-`;
+type FooterWrapperProps = {
+  mode: boolean;
+  children?: React.ReactNode;
+};
+const FooterWrapper: React.FC<FooterWrapperProps> =
+  styled.div<FooterWrapperProps>(
+    (props) => css`
+      display: flex;
+      justify-content: space-between;
+      background: ${props.mode ? "#fff" : "#25273D"};
+      padding: 16px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.194px;
+      color: ${props.mode ? "#9495A5" : "#5B5E7E"};
+    `
+  );
+
+type DatacontainerProps = {
+  mode: boolean;
+  children?: React.ReactNode;
+};
+const Datacontainer: React.FC<DatacontainerProps> =
+  styled.div<DatacontainerProps>(
+    (props) => css`
+      display: flex;
+      column-gap: 20px;
+      span {
+        cursor: pointer;
+        &:hover {
+          color: ${props.mode ? "#494c6b" : "#FFF"};
+        }
+      }
+    `
+  );
+
 const ClearButton = styled.span`
   cursor: pointer;
 `;

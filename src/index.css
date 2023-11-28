@@ -1,6 +1,17 @@
-
-
-:root{
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Montserrat&display=swap");
+body {
+  text-align: center;
+  font-family: "Josefin Sans", sans-serif;
+   /* background-color: #fff; */
+  color: #000;
+}
+#root {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }

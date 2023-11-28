@@ -6,31 +6,117 @@ import sun from "./assets/sun.svg";
 import ovalLight from "./assets/Oval empty.svg";
 import ovalDark from "./assets/Oveal dark empty.svg";
 import X from "./assets/x.svg";
+import ovalCheck from "./assets/Check.svg";
+
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const App: React.FC = () => {
+  //dark mode
   const [dark, setDark] = useState(false);
-
   const changeMoudHandles = () => {
     setDark(!dark);
   };
 
-  const [input, setInput] = useState("");
-  const [items, setItems] = useState<string[]>([]);
+  //input
+  const data: string[] = ["All", "Active", "Completed"];
+
+  // const [input, setInput] = useState("");
+  // const [items, setItems] = useState<string[]>([]);
+
+  // const inputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setInput(event.target.value);
+  // };
+
+  // const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (event.key === "Enter" && input.trim() !== "") {
+  //     setItems((prevItems) => [...prevItems, input]);
+  //     setInput("");
+  //   }
+  // };
+
+  // //active
+  // const [activ, setActiv] = useState(true);
+
+  // const changeActiveHandles = () => {
+  //   setActiv(!activ);
+  // };
+
+  interface YourItemType {
+    id: number;
+    description: string;
+    active: boolean;
+    status: boolean | string;
+    indexOfObj: number;
+    value: string;
+  }
+
+  const [newTodo, setNewTodo] = useState<string>("");
+  const [todoList, setTodoList] = useState<YourItemType[]>([]);
+
+  const [checkedStatus, setCheckedStatus] = useState(false);
 
   const inputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
+    setNewTodo(event.target.value);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && input.trim() !== "") {
-      setItems((prevItems) => [...prevItems, input]);
-      setInput("");
+    const listId = uuidv4();
+    console.log(todoList);
+    if (event.key === "Enter") {
+      setTodoList([
+        ...todoList,
+        {
+          id: listId,
+          description: newTodo,
+          active: checkedStatus,
+          status: "",
+          indexOfObj: todoList.length,
+          value: "",
+        },
+      ]);
+      setNewTodo("");
+      setCheckedStatus(false);
     }
   };
 
-  const data: string[] = ["All", "Active", "Completed"];
+  interface CheckboxProps {
+    type: string;
+    onChange: () => void;
+    checked: boolean;
+    value: string; // Replace with the actual type of the value
+    setCheckedStatus: (value: boolean) => void; // Function to update checkbox status
+  }
 
+  const Checkbox: React.FC<CheckboxProps> = ({
+    type,
+    onChange,
+    checked,
+    value,
+    setCheckedStatus,
+  }) => {
+    // Your Checkbox component implementation
+    return (
+      // Your JSX for the checkbox
+      <input
+        type={type}
+        onChange={onChange}
+        checked={checked}
+        // Other attributes as needed
+      />
+    );
+  };
+
+  // აქტიურობის წაშლა მონიშვნა შესრულებულად
+  const checkboxHandler = (id: any) => {
+    const newArr = todoList.slice();
+    const indexOfObj = newArr.findIndex((item) => item.id === id);
+
+    if (indexOfObj >= 0) {
+      newArr[indexOfObj].status = !newArr[indexOfObj].status;
+      setTodoList(newArr);
+    }
+  };
   return (
     <>
       <Wrapper mode={dark}>
@@ -44,9 +130,15 @@ const App: React.FC = () => {
           </TiTleContainer>
           <div>
             <InputWrapper mode={dark}>
-              <img src={dark ? ovalLight : ovalDark} alt="" />
               <input
-                value={input}
+                type="checkbox"
+                onChange={() => setCheckedStatus(!checkedStatus)}
+                checked={checkedStatus}
+              />
+
+              {/* <img src={dark ? ovalLight : ovalDark} alt="" /> */}
+              <MainInput
+                value={newTodo}
                 onChange={inputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Currently typing"
@@ -54,26 +146,45 @@ const App: React.FC = () => {
             </InputWrapper>
             <Main>
               <TascWrapper>
-                {items.map((item, index) => (
-                  <TascContainer key={index} mode={dark}>
-                    <div>
-                      <img src={dark ? ovalLight : ovalDark} alt="img" />
-                      <span>{item}</span>
-                    </div>
-                    <div>
-                      <img src={X} />
-                    </div>
-                  </TascContainer>
-                ))}
+                {(todoList as YourItemType[]).map((item: YourItemType) => {
+                  return (
+                    <TascContainer
+                      key={item.id}
+                      mode={dark}
+                      // className={item.active ? "active" : "inactive"}
+                    >
+                      <div>
+                        <Checkbox
+                          type="checkbox"
+                          onChange={() => checkboxHandler(item.id)}
+                          checked={item.status as boolean}
+                          value={item.value}
+                          setCheckedStatus={(value) => setCheckedStatus(value)}
+                        />
+                        {/* <img
+                          setCheckedStatus={() =>
+                            setCheckedStatus(!checkedStatus)
+                          }
+                          src={dark ? ovalLight : ovalDark}
+                          alt="img"
+                        /> */}
+                        <span>{item.description}</span>
+                      </div>
+                      <div>
+                        <img src={X} />
+                      </div>
+                    </TascContainer>
+                  );
+                })}
               </TascWrapper>
               <FooterWrapper mode={dark}>
-                <span>{items.length} items left</span>
+                <span>{todoList.length} items left</span>
                 <Datacontainer mode={dark}>
                   {data.map((item, index) => (
                     <span key={index}>{item}</span>
                   ))}
                 </Datacontainer>
-                <ClearButton onClick={() => setItems([])}>
+                <ClearButton onClick={() => setTodoList([])}>
                   Clear Completed
                 </ClearButton>
               </FooterWrapper>
@@ -143,20 +254,25 @@ const InputWrapper: React.FC<InputWrapperProps> = styled.div<InputWrapperProps>(
     margin-bottom: 24px;
     display: flex;
     align-items: center;
-
-    input {
-      border: none;
-      margin-left: 24px;
-      color: ${props.mode ? "#393a4b" : "#fff"};
-      font-size: 22px;
-      letter-spacing: -0.25px;
-      width: 100%;
-      outline: none;
-      background: transparent;
-    }
   `
 );
-
+const MainInput = styled.input`
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  letter-spacing: -0.25px;
+  width: 100%;
+  outline: none;
+  background: transparent;
+`;
+const Checkbox = styled.input`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid blue;
+  margin-right: 24px;
+`;
 const Main = styled.div`
   border-radius: 15px;
   background: #fff;

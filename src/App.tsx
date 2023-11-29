@@ -21,34 +21,13 @@ const App: React.FC = () => {
   //input
   const data: string[] = ["All", "Active", "Completed"];
 
-  // const [input, setInput] = useState("");
-  // const [items, setItems] = useState<string[]>([]);
-
-  // const inputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setInput(event.target.value);
-  // };
-
-  // const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (event.key === "Enter" && input.trim() !== "") {
-  //     setItems((prevItems) => [...prevItems, input]);
-  //     setInput("");
-  //   }
-  // };
-
-  // //active
-  // const [activ, setActiv] = useState(true);
-
-  // const changeActiveHandles = () => {
-  //   setActiv(!activ);
-  // };
-
   interface YourItemType {
-    id: number;
+    id: number | string;
     description: string;
     active: boolean;
     status: boolean | string;
     indexOfObj: number;
-    value: string;
+    value: "";
   }
 
   const [newTodo, setNewTodo] = useState<string>("");
@@ -62,7 +41,6 @@ const App: React.FC = () => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const listId = uuidv4();
-    console.log(todoList);
     if (event.key === "Enter") {
       setTodoList([
         ...todoList,
@@ -70,7 +48,7 @@ const App: React.FC = () => {
           id: listId,
           description: newTodo,
           active: checkedStatus,
-          status: "",
+          status: checkedStatus,
           indexOfObj: todoList.length,
           value: "",
         },
@@ -84,21 +62,17 @@ const App: React.FC = () => {
     type: string;
     onChange: () => void;
     checked: boolean;
-    value: string; // Replace with the actual type of the value
-    setCheckedStatus: (value: boolean) => void; // Function to update checkbox status
+    setCheckedStatus: (value: boolean) => void;
   }
 
   const Checkbox: React.FC<CheckboxProps> = ({
     type,
     onChange,
     checked,
-    value,
     setCheckedStatus,
   }) => {
-    // Your Checkbox component implementation
     return (
-      // Your JSX for the checkbox
-      <input
+      <StyledCheckbox
         type={type}
         onChange={onChange}
         checked={checked}
@@ -111,10 +85,19 @@ const App: React.FC = () => {
   const checkboxHandler = (id: any) => {
     const newArr = todoList.slice();
     const indexOfObj = newArr.findIndex((item) => item.id === id);
-
+    console.log(indexOfObj);
     if (indexOfObj >= 0) {
       newArr[indexOfObj].status = !newArr[indexOfObj].status;
       setTodoList(newArr);
+    }
+  };
+
+  const deleteTodo = (id: any) => {
+    const newArr = todoList.slice();
+    const indexOfObj =  newArr.findIndex((item) => item.id === id);
+    if (indexOfObj >= 0) {
+      newArr.splice(indexOfObj, 1);
+      setTodoList( newArr);
     }
   };
   return (
@@ -130,12 +113,12 @@ const App: React.FC = () => {
           </TiTleContainer>
           <div>
             <InputWrapper mode={dark}>
-              <input
+              <Checkbox
                 type="checkbox"
                 onChange={() => setCheckedStatus(!checkedStatus)}
                 checked={checkedStatus}
+                setCheckedStatus={(value) => setCheckedStatus(value)}
               />
-
               {/* <img src={dark ? ovalLight : ovalDark} alt="" /> */}
               <MainInput
                 value={newTodo}
@@ -158,7 +141,6 @@ const App: React.FC = () => {
                           type="checkbox"
                           onChange={() => checkboxHandler(item.id)}
                           checked={item.status as boolean}
-                          value={item.value}
                           setCheckedStatus={(value) => setCheckedStatus(value)}
                         />
                         {/* <img
@@ -171,7 +153,7 @@ const App: React.FC = () => {
                         <span>{item.description}</span>
                       </div>
                       <div>
-                        <img src={X} />
+                        <img onClick={() => deleteTodo(item.id)} src={X} />
                       </div>
                     </TascContainer>
                   );
@@ -265,7 +247,7 @@ const MainInput = styled.input`
   outline: none;
   background: transparent;
 `;
-const Checkbox = styled.input`
+const StyledCheckbox = styled.input`
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -273,6 +255,7 @@ const Checkbox = styled.input`
   border: 1px solid blue;
   margin-right: 24px;
 `;
+
 const Main = styled.div`
   border-radius: 15px;
   background: #fff;
@@ -308,6 +291,10 @@ const TascContainer: React.FC<TascContainerProps> =
       img {
         margin-right: 24px;
         cursor: pointer;
+        display: none;
+      }
+      &:hover img {
+        display: block;
       }
       button {
       }

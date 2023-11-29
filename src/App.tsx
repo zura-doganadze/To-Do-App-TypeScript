@@ -65,12 +65,7 @@ const App: React.FC = () => {
     setCheckedStatus: (value: boolean) => void;
   }
 
-  const Checkbox: React.FC<CheckboxProps> = ({
-    type,
-    onChange,
-    checked,
-    setCheckedStatus,
-  }) => {
+  const Checkbox: React.FC<CheckboxProps> = ({ type, onChange, checked }) => {
     return (
       <StyledCheckbox
         type={type}
@@ -92,13 +87,19 @@ const App: React.FC = () => {
     }
   };
 
+  // delete from x
   const deleteTodo = (id: any) => {
     const newArr = todoList.slice();
-    const indexOfObj =  newArr.findIndex((item) => item.id === id);
+    const indexOfObj = newArr.findIndex((item) => item.id === id);
     if (indexOfObj >= 0) {
       newArr.splice(indexOfObj, 1);
-      setTodoList( newArr);
+      setTodoList(newArr);
     }
+  };
+  // delete from Clear Completed cklick
+  const deleteComleted = () => {
+    const newArr = todoList.filter((item) => !item.status);
+    setTodoList(newArr);
   };
   return (
     <>
@@ -166,7 +167,7 @@ const App: React.FC = () => {
                     <span key={index}>{item}</span>
                   ))}
                 </Datacontainer>
-                <ClearButton onClick={() => setTodoList([])}>
+                <ClearButton onClick={deleteComleted}>
                   Clear Completed
                 </ClearButton>
               </FooterWrapper>

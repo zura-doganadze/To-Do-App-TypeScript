@@ -28,7 +28,6 @@ const App: React.FC = () => {
   }
 
   const [newTodo, setNewTodo] = useState<string>("");
-  const [todoList, setTodoList] = useState<YourItemType[]>([]);
 
   const [checkedStatus, setCheckedStatus] = useState(false);
 
@@ -94,7 +93,11 @@ const App: React.FC = () => {
   };
   // filter left items
   const [filteredItems, setFilteredItems] = useState<YourItemType[]>([]);
-
+  const [todoList, setTodoList] = useState<YourItemType[]>(() => {
+    const storedData = localStorage.getItem("todoList");
+    return storedData ? JSON.parse(storedData) : [];
+  });
+  
   const filterLeftItems = () => {
     const newArr = todoList.filter((item) => !item.status);
     setFilteredItems(newArr);
@@ -122,6 +125,12 @@ const App: React.FC = () => {
     }
   };
 
+
+
+  // Save data to local storage whenever todoList changes
+  useEffect(() => {
+    localStorage.setItem("todoList", JSON.stringify(todoList));
+  }, [todoList]);
   return (
     <>
       <Wrapper mode={dark}>

@@ -3,12 +3,9 @@ import DesktopLight from "./assets/bg-desktop-light.jpg";
 import DesktopDark from "./assets/bg-desktop-dark.jpg";
 import moon from "./assets/moon.svg";
 import sun from "./assets/sun.svg";
-import ovalLight from "./assets/Oval empty.svg";
-import ovalDark from "./assets/Oveal dark empty.svg";
 import X from "./assets/x.svg";
-import ovalCheck from "./assets/Check.svg";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const App: React.FC = () => {
@@ -66,17 +63,11 @@ const App: React.FC = () => {
   }
 
   const Checkbox: React.FC<CheckboxProps> = ({ type, onChange, checked }) => {
-    return (
-      <StyledCheckbox
-        type={type}
-        onChange={onChange}
-        checked={checked}
-        // Other attributes as needed
-      />
-    );
+    return <StyledCheckbox type={type} onChange={onChange} checked={checked} />;
   };
 
-  // აქტიურობის წაშლა მონიშვნა შესრულებულად
+  //Delete activity Mark done
+
   const checkboxHandler = (id: any) => {
     const newArr = todoList.slice();
     const indexOfObj = newArr.findIndex((item) => item.id === id);
@@ -101,6 +92,36 @@ const App: React.FC = () => {
     const newArr = todoList.filter((item) => !item.status);
     setTodoList(newArr);
   };
+  // filter left items
+  const [filteredItems, setFilteredItems] = useState<YourItemType[]>([]);
+
+  const filterLeftItems = () => {
+    const newArr = todoList.filter((item) => !item.status);
+    setFilteredItems(newArr);
+  };
+
+  useEffect(() => {
+    filterLeftItems();
+  }, [todoList]);
+
+  // filter with button
+  const [filterType, setFilterType] = useState<string>("All");
+
+  const handleFilterChange = (filter: string) => {
+    setFilterType(filter);
+  };
+
+  const filterItems = (items: YourItemType[]): YourItemType[] => {
+    switch (filterType) {
+      case "Active":
+        return items.filter((item) => !item.status);
+      case "Completed":
+        return items.filter((item) => item.status);
+      default:
+        return items;
+    }
+  };
+
   return (
     <>
       <Wrapper mode={dark}>
@@ -120,8 +141,8 @@ const App: React.FC = () => {
                 checked={checkedStatus}
                 setCheckedStatus={(value) => setCheckedStatus(value)}
               />
-              {/* <img src={dark ? ovalLight : ovalDark} alt="" /> */}
               <MainInput
+                mode={dark}
                 value={newTodo}
                 onChange={inputChange}
                 onKeyDown={handleKeyDown}
@@ -130,44 +151,48 @@ const App: React.FC = () => {
             </InputWrapper>
             <Main>
               <TascWrapper>
-                {(todoList as YourItemType[]).map((item: YourItemType) => {
-                  return (
-                    <TascContainer
-                      key={item.id}
-                      mode={dark}
-                      // className={item.active ? "active" : "inactive"}
-                    >
-                      <div>
-                        <Checkbox
-                          type="checkbox"
-                          onChange={() => checkboxHandler(item.id)}
-                          checked={item.status as boolean}
-                          setCheckedStatus={(value) => setCheckedStatus(value)}
-                        />
-                        {/* <img
-                          setCheckedStatus={() =>
-                            setCheckedStatus(!checkedStatus)
-                          }
-                          src={dark ? ovalLight : ovalDark}
-                          alt="img"
-                        /> */}
-                        <span>{item.description}</span>
-                      </div>
-                      <div>
-                        <img onClick={() => deleteTodo(item.id)} src={X} />
-                      </div>
-                    </TascContainer>
-                  );
-                })}
+                {(filterItems(todoList) as YourItemType[]).map(
+                  (item: YourItemType) => {
+                    return (
+                      <TascContainer key={item.id} mode={dark}>
+                        <div>
+                          <Checkbox
+                            type="checkbox"
+                            onChange={() => checkboxHandler(item.id)}
+                            checked={item.status as boolean}
+                            setCheckedStatus={(value) =>
+                              setCheckedStatus(value)
+                            }
+                          />
+
+                          <span>{item.description}</span>
+                        </div>
+                        <div>
+                          <img onClick={() => deleteTodo(item.id)} src={X} />
+                        </div>
+                      </TascContainer>
+                    );
+                  }
+                )}
               </TascWrapper>
               <FooterWrapper mode={dark}>
-                <span>{todoList.length} items left</span>
+                <span>{filteredItems.length} items left</span>
                 <Datacontainer mode={dark}>
                   {data.map((item, index) => (
-                    <span key={index}>{item}</span>
+                    <FilterButton
+                      key={index}
+                      onClick={() => handleFilterChange(item)}
+                      active={
+                        filterType === item ||
+                        (filterType === "All" && item === "All")
+                      }
+                      lightMode={dark}
+                    >
+                      {item}
+                    </FilterButton>
                   ))}
                 </Datacontainer>
-                <ClearButton onClick={deleteComleted}>
+                <ClearButton mode={dark} onClick={deleteComleted}>
                   Clear Completed
                 </ClearButton>
               </FooterWrapper>
@@ -239,15 +264,22 @@ const InputWrapper: React.FC<InputWrapperProps> = styled.div<InputWrapperProps>(
     align-items: center;
   `
 );
-const MainInput = styled.input`
-  border: none;
-  color: #fff;
-  font-size: 22px;
-  letter-spacing: -0.25px;
-  width: 100%;
-  outline: none;
-  background: transparent;
-`;
+
+type MainInputProps = {
+  mode: boolean;
+};
+
+const MainInput = styled.input<MainInputProps>(
+  (props) => css`
+    border: none;
+    color: ${props.mode ? "#000" : "#fff"};
+    font-size: 22px;
+    letter-spacing: -0.25px;
+    width: 100%;
+    outline: none;
+    background: transparent;
+  `
+);
 const StyledCheckbox = styled.input`
   width: 20px;
   height: 20px;
@@ -338,7 +370,30 @@ const Datacontainer: React.FC<DatacontainerProps> =
       }
     `
   );
-
-const ClearButton = styled.span`
-  cursor: pointer;
+const FilterButton = styled.span.attrs<{ lightMode: boolean }>((props) => ({
+  lightMode: props.lightMode,
+}))<{ active: boolean; lightMode: boolean }>`
+  color: ${(props) =>
+    props.lightMode
+      ? props.active
+        ? "#3A7CFD"
+        : "#494C6B"
+      : props.active
+      ? "#3A7CFD"
+      : "#5B5E7E"};
 `;
+type ClearButtonProps = {
+  mode: boolean;
+  children?: React.ReactNode;
+  onClick?: () => void;
+};
+
+const ClearButton: React.FC<ClearButtonProps> = styled.div<ClearButtonProps>(
+  (props) => css`
+    cursor: pointer;
+    color: ${props.mode ? "#9495A5" : "#5B5E7E"};
+    &:hover {
+      color: ${props.mode ? "#494C6B" : "#E3E4F1"};
+    }
+  `
+);

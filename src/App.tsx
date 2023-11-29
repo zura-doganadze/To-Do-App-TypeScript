@@ -3,6 +3,7 @@ import DesktopLight from "./assets/bg-desktop-light.jpg";
 import DesktopDark from "./assets/bg-desktop-dark.jpg";
 import moon from "./assets/moon.svg";
 import sun from "./assets/sun.svg";
+import ovalLight from "./assets/Oval empty.svg";
 import X from "./assets/x.svg";
 
 import { useState, useEffect } from "react";
